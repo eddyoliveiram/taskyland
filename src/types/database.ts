@@ -35,10 +35,39 @@ export interface Database {
           updated_at?: string
         }
       }
+      family_members: {
+        Row: {
+          id: string
+          manager_id: string
+          name: string
+          avatar_url: string | null
+          color: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          manager_id: string
+          name: string
+          avatar_url?: string | null
+          color?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          manager_id?: string
+          name?: string
+          avatar_url?: string | null
+          color?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
       tasks: {
         Row: {
           id: string
-          user_id: string
+          member_id: string
           title: string
           description: string | null
           completed: boolean
@@ -52,7 +81,7 @@ export interface Database {
         }
         Insert: {
           id?: string
-          user_id: string
+          member_id: string
           title: string
           description?: string | null
           completed?: boolean
@@ -66,7 +95,7 @@ export interface Database {
         }
         Update: {
           id?: string
-          user_id?: string
+          member_id?: string
           title?: string
           description?: string | null
           completed?: boolean

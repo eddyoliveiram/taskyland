@@ -51,11 +51,14 @@ export function TaskModal({ open, onOpenChange, task, onSubmit }: TaskModalProps
       .map(tag => tag.trim())
       .filter(Boolean)
 
+    // Corrigir problema de timezone: adicionar horário para evitar deslocamento de 1 dia
+    const parsedDueDate = dueDate ? new Date(dueDate + 'T12:00:00') : undefined
+
     onSubmit(
       title,
       description || undefined,
       priority,
-      dueDate ? new Date(dueDate) : undefined,
+      parsedDueDate,
       category || undefined,
       tags.length > 0 ? tags : undefined
     )
@@ -155,6 +158,11 @@ export function TaskModal({ open, onOpenChange, task, onSubmit }: TaskModalProps
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
+                onClick={(e) => {
+                  // Garantir que o calendário abra ao clicar
+                  const input = e.target as HTMLInputElement
+                  input.showPicker?.()
+                }}
               />
             </div>
           </div>

@@ -12,19 +12,19 @@ export function ProgressChart({ statistics }: ProgressChartProps) {
     {
       label: 'Alta Prioridade',
       value: statistics.byPriority.high,
-      total: statistics.pending,
+      total: statistics.total,
       color: 'bg-red-500',
     },
     {
       label: 'Média Prioridade',
       value: statistics.byPriority.medium,
-      total: statistics.pending,
+      total: statistics.total,
       color: 'bg-yellow-500',
     },
     {
       label: 'Baixa Prioridade',
       value: statistics.byPriority.low,
-      total: statistics.pending,
+      total: statistics.total,
       color: 'bg-blue-500',
     },
   ]

@@ -2,10 +2,10 @@ import { useState, useCallback, useMemo, useEffect } from 'react'
 import { Task, Priority, TaskStatistics, SortType, FilterType } from '@/types'
 import { startOfDay, startOfWeek, startOfMonth, differenceInMinutes } from 'date-fns'
 import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/contexts/AuthContext'
+import { useMember } from '@/contexts/MemberContext'
 
 export function useTasksDb() {
-  const { user } = useAuth()
+  const { selectedMember } = useMember()
   const [tasks, setTasks] = useState<Task[]>([])
   const [filter, setFilter] = useState<FilterType>('all')
   const [sortBy, setSortBy] = useState<SortType>('date')
@@ -14,20 +14,29 @@ export function useTasksDb() {
 
   // Carregar tarefas do banco
   const loadTasks = useCallback(async () => {
-    if (!user) {
+    if (!selectedMember) {
+      console.log('Nenhum membro selecionado, limpando tarefas')
       setTasks([])
       setLoading(false)
       return
     }
 
+    console.log('Carregando tarefas para membro:', selectedMember.id, selectedMember.name)
+
     try {
+      // @ts-ignore
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('member_id', selectedMember.id)
         .order('created_at', { ascending: false })
 
-      if (error) throw error
+      if (error) {
+        console.error('Erro na query:', error)
+        throw error
+      }
+
+      console.log('Tarefas recebidas do banco:', data)
 
       const mappedTasks: Task[] = (data || []).map((task: any) => ({
         id: task.id,
@@ -42,13 +51,14 @@ export function useTasksDb() {
         tags: task.tags || undefined,
       }))
 
+      console.log('Tarefas mapeadas:', mappedTasks)
       setTasks(mappedTasks)
     } catch (error) {
       console.error('Erro ao carregar tarefas:', error)
     } finally {
       setLoading(false)
     }
-  }, [user])
+  }, [selectedMember])
 
   useEffect(() => {
     loadTasks()
@@ -56,7 +66,7 @@ export function useTasksDb() {
 
   // Subscrever a mudanças em tempo real
   useEffect(() => {
-    if (!user) return
+    if (!selectedMember) return
 
     const channel = supabase
       .channel('tasks_changes')
@@ -66,7 +76,7 @@ export function useTasksDb() {
           event: '*',
           schema: 'public',
           table: 'tasks',
-          filter: `user_id=eq.${user.id}`,
+          filter: `member_id=eq.${selectedMember.id}`,
         },
         () => {
           loadTasks()
@@ -77,7 +87,7 @@ export function useTasksDb() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [user, loadTasks])
+  }, [selectedMember, loadTasks])
 
   const addTask = useCallback(
     async (
@@ -88,32 +98,43 @@ export function useTasksDb() {
       category?: string,
       tags?: string[]
     ) => {
-      if (!user) return
+      if (!selectedMember) {
+        console.error('Nenhum membro selecionado!')
+        return
+      }
+
+      console.log('Adicionando tarefa para membro:', selectedMember.id, selectedMember.name)
 
       try {
-        const { error } = await supabase.from('tasks').insert({
-          user_id: user.id,
+        // @ts-ignore
+        const { data, error } = await supabase.from('tasks').insert({
+          member_id: selectedMember.id,
           title,
           description: description || null,
           priority,
           due_date: dueDate?.toISOString() || null,
           category: category || null,
           tags: tags || null,
-        } as any)
+        } as any).select()
 
-        if (error) throw error
+        if (error) {
+          console.error('Erro ao inserir tarefa:', error)
+          throw error
+        }
+
+        console.log('Tarefa inserida com sucesso:', data)
         await loadTasks()
       } catch (error) {
         console.error('Erro ao adicionar tarefa:', error)
         throw error
       }
     },
-    [user, loadTasks]
+    [selectedMember, loadTasks]
   )
 
   const updateTask = useCallback(
     async (id: string, updates: Partial<Task>) => {
-      if (!user) return
+      if (!selectedMember) return
 
       try {
         const updateData = {
@@ -132,7 +153,7 @@ export function useTasksDb() {
           .from('tasks')
           .update(updateData)
           .eq('id', id)
-          .eq('user_id', user.id)
+          .eq('member_id', selectedMember.id)
 
         if (error) throw error
         await loadTasks()
@@ -141,12 +162,12 @@ export function useTasksDb() {
         throw error
       }
     },
-    [user, loadTasks]
+    [selectedMember, loadTasks]
   )
 
   const toggleTask = useCallback(
     async (id: string) => {
-      if (!user) return
+      if (!selectedMember) return
 
       const task = tasks.find((t) => t.id === id)
       if (!task) return
@@ -164,7 +185,7 @@ export function useTasksDb() {
           .from('tasks')
           .update(toggleData)
           .eq('id', id)
-          .eq('user_id', user.id)
+          .eq('member_id', selectedMember.id)
 
         if (error) throw error
         await loadTasks()
@@ -173,19 +194,20 @@ export function useTasksDb() {
         throw error
       }
     },
-    [user, tasks, loadTasks]
+    [selectedMember, tasks, loadTasks]
   )
 
   const deleteTask = useCallback(
     async (id: string) => {
-      if (!user) return
+      if (!selectedMember) return
 
       try {
+        // @ts-ignore
         const { error } = await supabase
           .from('tasks')
           .delete()
           .eq('id', id)
-          .eq('user_id', user.id)
+          .eq('member_id', selectedMember.id)
 
         if (error) throw error
         await loadTasks()
@@ -194,17 +216,18 @@ export function useTasksDb() {
         throw error
       }
     },
-    [user, loadTasks]
+    [selectedMember, loadTasks]
   )
 
   const clearCompleted = useCallback(async () => {
-    if (!user) return
+    if (!selectedMember) return
 
     try {
+      // @ts-ignore
       const { error } = await supabase
         .from('tasks')
         .delete()
-        .eq('user_id', user.id)
+        .eq('member_id', selectedMember.id)
         .eq('completed', true)
 
       if (error) throw error
@@ -213,7 +236,7 @@ export function useTasksDb() {
       console.error('Erro ao limpar tarefas concluídas:', error)
       throw error
     }
-  }, [user, loadTasks])
+  }, [selectedMember, loadTasks])
 
   const filteredTasks = useMemo(() => {
     let result = tasks
@@ -274,9 +297,9 @@ export function useTasksDb() {
     ).length
 
     const byPriority = {
-      low: tasks.filter((t) => t.priority === 'low' && !t.completed).length,
-      medium: tasks.filter((t) => t.priority === 'medium' && !t.completed).length,
-      high: tasks.filter((t) => t.priority === 'high' && !t.completed).length,
+      low: tasks.filter((t) => t.priority === 'low').length,
+      medium: tasks.filter((t) => t.priority === 'medium').length,
+      high: tasks.filter((t) => t.priority === 'high').length,
     }
 
     const byCategory: Record<string, number> = {}

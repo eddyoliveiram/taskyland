@@ -1,17 +1,21 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { useTasksDb } from '@/hooks/useTasksDb'
 import { useAuth } from '@/contexts/AuthContext'
+import { useMember } from '@/contexts/MemberContext'
 import { Task } from '@/types'
 import { TaskModal } from '@/components/tasks/TaskModal'
 import { TaskList } from '@/components/tasks/TaskList'
 import { TaskFilters } from '@/components/tasks/TaskFilters'
 import { Button } from '@/components/ui/button'
-import { Plus, LogOut, User } from 'lucide-react'
+import { Plus, LogOut, ArrowLeft } from 'lucide-react'
 import { getGreeting } from '@/lib/utils'
 
 export function Home() {
-  const { profile, signOut } = useAuth()
+  const navigate = useNavigate()
+  const { signOut } = useAuth()
+  const { selectedMember, selectMember } = useMember()
   const {
     tasks,
     filter,
@@ -33,8 +37,13 @@ export function Home() {
 
   const handleSignOut = async () => {
     if (confirm('Tem certeza que deseja sair?')) {
+      selectMember(null)
       await signOut()
     }
+  }
+
+  const handleBackToMembers = () => {
+    navigate('/members')
   }
 
   const handleSubmit = (
@@ -83,7 +92,7 @@ export function Home() {
 
   return (
     <div className="container max-w-4xl mx-auto px-4 py-6 pb-24 md:pb-6">
-      {/* Header com Avatar e Logout */}
+      {/* Header com Membro Selecionado */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -91,21 +100,34 @@ export function Home() {
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
-              {profile?.avatar_url ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleBackToMembers}
+              title="Voltar para seleção de membros"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: selectedMember?.color || '#3b82f6' }}
+            >
+              {selectedMember?.avatar_url ? (
                 <img
-                  src={profile.avatar_url}
-                  alt={profile.full_name || 'Avatar'}
+                  src={selectedMember.avatar_url}
+                  alt={selectedMember.name}
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
-                <User className="w-6 h-6 text-primary-foreground" />
+                <span className="text-xl font-bold text-white">
+                  {selectedMember?.name.charAt(0).toUpperCase()}
+                </span>
               )}
             </div>
             <div>
               <h2 className="text-2xl font-bold">{getGreeting()}!</h2>
               <p className="text-sm text-muted-foreground">
-                {profile?.full_name || profile?.email || 'Usuário'}
+                Tarefas de {selectedMember?.name}
               </p>
             </div>
           </div>
