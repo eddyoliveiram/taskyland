@@ -67,8 +67,6 @@ export function HeatMap({ data }: HeatMapProps) {
     }
   }
 
-  const weekDays = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
