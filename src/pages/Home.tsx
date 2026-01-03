@@ -1,15 +1,17 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { useTasks } from '@/hooks/useTasks'
+import { useTasksDb } from '@/hooks/useTasksDb'
+import { useAuth } from '@/contexts/AuthContext'
 import { Task } from '@/types'
 import { TaskModal } from '@/components/tasks/TaskModal'
 import { TaskList } from '@/components/tasks/TaskList'
 import { TaskFilters } from '@/components/tasks/TaskFilters'
 import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
+import { Plus, LogOut, User } from 'lucide-react'
 import { getGreeting } from '@/lib/utils'
 
 export function Home() {
+  const { profile, signOut } = useAuth()
   const {
     tasks,
     filter,
@@ -23,10 +25,17 @@ export function Home() {
     toggleTask,
     deleteTask,
     statistics,
-  } = useTasks()
+    loading,
+  } = useTasksDb()
 
   const [modalOpen, setModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | undefined>()
+
+  const handleSignOut = async () => {
+    if (confirm('Tem certeza que deseja sair?')) {
+      await signOut()
+    }
+  }
 
   const handleSubmit = (
     title: string,
@@ -61,14 +70,54 @@ export function Home() {
     setEditingTask(undefined)
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-muted-foreground">Carregando tarefas...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="container max-w-4xl mx-auto px-4 py-6 pb-24 md:pb-6">
+      {/* Header com Avatar e Logout */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="mb-6"
       >
-        <h2 className="text-3xl font-bold mb-2">{getGreeting()}!</h2>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
+              {profile?.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt={profile.full_name || 'Avatar'}
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : (
+                <User className="w-6 h-6 text-primary-foreground" />
+              )}
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold">{getGreeting()}!</h2>
+              <p className="text-sm text-muted-foreground">
+                {profile?.full_name || profile?.email || 'Usuário'}
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleSignOut}
+            title="Sair da conta"
+          >
+            <LogOut className="w-5 h-5" />
+          </Button>
+        </div>
         <p className="text-muted-foreground">
           Você tem {statistics.pending} tarefa{statistics.pending !== 1 ? 's' : ''} pendente
           {statistics.pending !== 1 ? 's' : ''}

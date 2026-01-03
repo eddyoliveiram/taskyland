@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Home, BarChart3, LayoutDashboard, Settings } from 'lucide-react'
+import { Home, LayoutDashboard } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface NavigationProps {
@@ -10,8 +10,6 @@ interface NavigationProps {
 const links = [
   { to: '/', label: 'Tarefas', icon: Home },
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/stats', label: 'Estatísticas', icon: BarChart3 },
-  { to: '/settings', label: 'Configurações', icon: Settings },
 ]
 
 export function Navigation({ isMobile = false, onNavigate }: NavigationProps) {

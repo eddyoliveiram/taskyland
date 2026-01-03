@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useTasks } from '@/hooks/useTasks'
+import { useTasksDb } from '@/hooks/useTasksDb'
 import { useProductivity } from '@/hooks/useProductivity'
 import { HeatMap } from '@/components/dashboard/HeatMap'
 import { StreakCard } from '@/components/dashboard/StreakCard'
@@ -8,8 +8,19 @@ import { ProgressChart } from '@/components/stats/ProgressChart'
 import { BarChart3, CheckCircle2, Clock, Zap } from 'lucide-react'
 
 export function Dashboard() {
-  const { allTasks, statistics } = useTasks()
+  const { allTasks, statistics, loading } = useTasksDb()
   const { dailyStats, productivityMetrics } = useProductivity(allTasks)
+
+  if (loading) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-muted-foreground">Carregando dashboard...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container max-w-7xl mx-auto px-4 py-6 pb-24 md:pb-6">

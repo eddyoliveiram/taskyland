@@ -1,25 +1,29 @@
 # To-Do List - Gerenciador de Tarefas
 
-Aplicativo web moderno de gerenciamento de tarefas com interface responsiva e otimizada para mobile.
+Aplicativo web moderno de gerenciamento de tarefas com interface responsiva, otimizado para mobile e com sincronização na nuvem.
 
 ## Características
 
+- **Autenticação com Google**: Login seguro usando Google OAuth
+- **Banco de Dados na Nuvem**: Dados sincronizados com Supabase PostgreSQL
+- **Multi-usuário**: Cada usuário tem seus próprios dados isolados
 - **Interface Moderna**: Design clean e intuitivo com componentes shadcn/ui
 - **Dashboard Completo**: Visualização avançada de progresso com gráficos interativos
 - **Modo Escuro**: Sistema de temas (claro/escuro/sistema)
 - **Responsivo**: Otimizado para desktop, tablet e mobile
 - **Estatísticas Avançadas**: Acompanhe sua produtividade com múltiplas métricas
 - **Sistema de Streaks**: Acompanhe sequências de dias produtivos
-- **Mapa de Calor**: Visualize 30 dias de atividade em formato de calendário
+- **Mapa de Calor**: Visualize 365 dias de atividade em formato de calendário
 - **Prioridades**: Organize tarefas por prioridade (baixa/média/alta)
 - **Categorias e Tags**: Organize suas tarefas com categorias e tags personalizadas
 - **Filtros e Busca**: Encontre rapidamente suas tarefas
 - **Animações**: Transições suaves com Framer Motion
-- **PWA Ready**: Funciona offline e pode ser instalado como app
-- **Persistência Local**: Dados salvos no localStorage
+- **Sincronização em Tempo Real**: Dados atualizados automaticamente
+- **Segurança**: Row Level Security (RLS) garante isolamento de dados
 
 ## Stack Tecnológica
 
+### Frontend
 - **React 18** - Biblioteca UI
 - **TypeScript** - Tipagem estática
 - **Vite** - Build tool
@@ -30,13 +34,42 @@ Aplicativo web moderno de gerenciamento de tarefas com interface responsiva e ot
 - **date-fns** - Manipulação de datas
 - **Lucide React** - Ícones
 
-## Instalação
+### Backend & Autenticação
+- **Supabase** - Backend as a Service
+- **PostgreSQL** - Banco de dados
+- **Supabase Auth** - Autenticação
+- **Google OAuth** - Login social
+- **Row Level Security (RLS)** - Segurança de dados
 
+## Instalação e Configuração
+
+### 1. Clonar o Repositório
 ```bash
-# Instalar dependências
-npm install
+git clone <url-do-repositorio>
+cd to-do-list
+```
 
-# Rodar em desenvolvimento
+### 2. Instalar Dependências
+```bash
+npm install
+```
+
+### 3. Configurar Variáveis de Ambiente
+Crie um arquivo `.env` na raiz do projeto:
+```env
+VITE_SUPABASE_URL=sua_url_do_supabase
+VITE_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
+```
+
+### 4. Configurar Supabase
+Siga o guia completo em [SETUP-SUPABASE.md](./SETUP-SUPABASE.md) para:
+- Configurar Google OAuth
+- Criar tabelas no banco de dados
+- Configurar políticas de segurança (RLS)
+
+### 5. Rodar o Projeto
+```bash
+# Desenvolvimento
 npm run dev
 
 # Build para produção
@@ -101,13 +134,43 @@ src/
 └── types/               # Definições TypeScript
 ```
 
+## Deploy
+
+### Vercel (Recomendado)
+1. Faça push do código para o GitHub
+2. Acesse [Vercel](https://vercel.com) e importe o repositório
+3. Configure as variáveis de ambiente:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+4. Deploy!
+
+Veja mais detalhes no [SETUP-SUPABASE.md](./SETUP-SUPABASE.md)
+
+## Arquitetura
+
+### Autenticação
+- Login via Google OAuth
+- Sessão persistente com Supabase Auth
+- Proteção de rotas com `ProtectedRoute`
+
+### Banco de Dados
+- **profiles**: Informações dos usuários
+- **tasks**: Tarefas de cada usuário
+- **RLS Policies**: Cada usuário só vê suas próprias tarefas
+
+### Sincronização
+- Real-time subscriptions do Supabase
+- Atualizações automáticas quando dados mudam
+- Optimistic updates para melhor UX
+
 ## Próximos Passos
 
-- [ ] Integração com Supabase para sync na nuvem
-- [ ] Notificações push
-- [ ] Compartilhamento de tarefas
-- [ ] Modo offline completo
+- [ ] Notificações push para tarefas vencendo
+- [ ] Compartilhamento de tarefas entre usuários
+- [ ] Modo offline com sync posterior
+- [ ] Anexos em tarefas
 - [ ] Temas customizáveis
+- [ ] App mobile nativo
 
 ## Licença
 
