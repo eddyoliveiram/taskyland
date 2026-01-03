@@ -49,13 +49,17 @@ export function Login() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-              className="mx-auto w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg"
+              className="mx-auto flex items-center justify-center"
             >
-              <CheckCircle2 className="w-8 h-8 text-primary-foreground" />
+              <img
+                src="/taskyland-logo.png"
+                alt="TaskyLand"
+                className="h-48 w-auto"
+              />
             </motion.div>
             <div>
               <CardTitle className="text-3xl font-bold mb-2">
-                Bem-vindo!
+                Bem-vindo ao TaskyLand!
               </CardTitle>
               <CardDescription className="text-base">
                 Organize suas tarefas e acompanhe seu progresso

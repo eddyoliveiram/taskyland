@@ -34,11 +34,15 @@ export function Header({ onMenuClick, showLogout, onLogout }: HeaderProps) {
               <Menu className="w-5 h-5" />
             </Button>
           )}
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">✓</span>
-            </div>
-            <h1 className="text-xl font-bold">To-Do List</h1>
+          <div className="flex items-center gap-3">
+            <img
+              src="/taskyland-logo.png"
+              alt="TaskyLand"
+              className="h-16 w-auto"
+            />
+            <h1 className="text-2xl font-bold text-foreground">
+              TaskyLand
+            </h1>
           </div>
         </div>
 
