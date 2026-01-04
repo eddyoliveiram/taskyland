@@ -9,7 +9,9 @@
       "Bash(npm install:*)",
       "Bash(echo:*)",
       "Bash(npx shadcn@latest add:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }
